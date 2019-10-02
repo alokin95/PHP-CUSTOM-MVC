@@ -1,0 +1,13 @@
+{
+    "name": "nikola/phpcontainer.loc",
+    "type": "project",
+    "license": "GIT",
+    "minimum-stability": "beta",
+    "require": {},
+    "autoload": {
+        "psr-4": {"Rose\\": "src/"}
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^4.3"
+    }
+}
