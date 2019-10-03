@@ -3,9 +3,11 @@
     "type": "project",
     "license": "GIT",
     "minimum-stability": "beta",
-    "require": {},
+    "require": {
+        "symfony/http-foundation": "^4.3"
+    },
     "autoload": {
-        "psr-4": {"Rose\\": "src/"}
+        "psr-4": {"App\\": "src/"}
     },
     "require-dev": {
         "symfony/var-dumper": "^4.3"
