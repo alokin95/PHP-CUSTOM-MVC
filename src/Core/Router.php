@@ -19,7 +19,8 @@ class Router
 
             $this->routes['GET'][$route] = [
                 'controller'    => $params['controller'],
-                'action'        => $params['action']
+                'action'        => $params['action'],
+                'arguments'     => $action_arguments
             ];
         }
     }
@@ -31,20 +32,29 @@ class Router
             $action_arguments = $this->extract_action_arguments($route);
 
             $this->routes['POST'][$route] = [
-                'controller' => $params['controller'],
-                'action'    => $params['action']
+                'controller'    => $params['controller'],
+                'action'        => $params['action'],
+                'arguments'     => $action_arguments
             ];
         }
     }
 
     public function resolve($method, $uri)
     {
-        if (array_key_exists($uri, $this->routes[$method]))
-        {
+        try {
+            if (!array_key_exists($uri, $this->routes[$method]))
+            {
+                throw new ExceptionHandler('Route is not defined.');
+            }
+
             $controller = 'App\Controllers' . '\\' . $this->routes[$method][$uri]['controller'];
             $controller_action = $this->routes[$method][$uri]['action'];
             $controller = new $controller;
             $controller->$controller_action();
+
+        } catch(ExceptionHandler $e)
+        {
+            $e->handle();
         }
     }
 
@@ -56,12 +66,12 @@ class Router
 
             $allowed_url_format = "/^([A-z0-9]{1,}|\{[A-z]{1,}\})(\/[A-z0-9]{1,}|\/\{[A-z]{1,}\})*([A-z0-9]{1,}|\/\{[A-z]{1,}\})*$/";
 
-            if (preg_match($allowed_url_format, $route))
+            if (!preg_match($allowed_url_format, $route))
             {
-                return true;
+                throw new ExceptionHandler('Invalid route format');
             }
 
-            throw new ExceptionHandler('Invalid route format');
+            return true;
 
         }catch(ExceptionHandler $e)
         {
@@ -73,9 +83,11 @@ class Router
     {
         try {
             $preg = '/\{[A-z]{1,}\}/';
-            preg_match_all($preg, $route, $arguments);
+            preg_match_all($preg, $route, $matched);
 
-            $check_duplicate_values = array_count_values($arguments[0]);
+            $check_duplicate_values = array_count_values($matched[0]);
+
+            $arguments = [];
 
             foreach ($check_duplicate_values as $duplicate_value)
             {
@@ -85,10 +97,23 @@ class Router
                 }
             }
 
+            foreach ($matched[0] as $parameter)
+            {
+                $arguments[] = $this->strip_curly_braces($parameter);
+            }
+
+            return $arguments;
+
         }catch (\Exception $exception)
         {
             $exception->handle();
         }
+    }
 
+    private function strip_curly_braces($string)
+    {
+        $opening = strpos($string, '{');
+        $closing = strpos($string, '}');
+        return substr($string, $opening+1, $closing-$opening-1);
     }
 }
