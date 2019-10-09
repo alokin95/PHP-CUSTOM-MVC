@@ -5,22 +5,22 @@ namespace App\Core;
 class Router
 {
 
-    private $routes = [
+    public $routes = [
         'GET' => [],
         'POST' => []
     ];
 
     public function get($route = '', array $params = [])
     {
-
         if ($this->validate_route($route))
         {
-            $action_arguments = $this->extract_action_arguments($route);
+            $remove_braces = "/[\{\}]/";
+            $uri = preg_replace($remove_braces, '', $route );
 
-            $this->routes['GET'][$route] = [
+            $this->routes['GET'][$uri] = [
                 'controller'    => $params['controller'],
                 'action'        => $params['action'],
-                'arguments'     => $action_arguments
+                'original_'     => $route
             ];
         }
     }
@@ -29,12 +29,13 @@ class Router
     {
         if ($this->validate_route($route))
         {
-            $action_arguments = $this->extract_action_arguments($route);
+            $remove_braces = "/[\{\}]/";
+            $uri = preg_replace($remove_braces, '', $route );
 
-            $this->routes['POST'][$route] = [
+            $this->routes['POST'][$uri] = [
                 'controller'    => $params['controller'],
                 'action'        => $params['action'],
-                'arguments'     => $action_arguments
+                'arguments'     => $route
             ];
         }
     }
