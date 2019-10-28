@@ -4,117 +4,169 @@ namespace App\Core;
 
 class Router
 {
-
-    public $routes = [
-        'GET' => [],
-        'POST' => []
-    ];
-
     public function get($route = '', array $params = [])
     {
-        if ($this->validate_route($route))
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET')
         {
-            $remove_braces = "/[\{\}]/";
-            $uri = preg_replace($remove_braces, '', $route );
+            return;
+        }
 
-            $this->routes['GET'][$uri] = [
-                'controller'    => $params['controller'],
-                'action'        => $params['action'],
-                'original_'     => $route
-            ];
+        if ($this->validateRoute($route))
+        {
+            $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
+
+            if ($methodArguments)
+            {
+                $this->resolve($params['controller'], $params['action'], $methodArguments);
+            }
         }
     }
 
     public function post($route = '', array $params = [])
     {
-        if ($this->validate_route($route))
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
         {
-            $remove_braces = "/[\{\}]/";
-            $uri = preg_replace($remove_braces, '', $route );
-
-            $this->routes['POST'][$uri] = [
-                'controller'    => $params['controller'],
-                'action'        => $params['action'],
-                'arguments'     => $route
-            ];
+            return;
         }
-    }
 
-    public function resolve($method, $uri)
-    {
-        try {
-            if (!array_key_exists($uri, $this->routes[$method]))
+        if ($this->validateRoute($route))
+        {
+            $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
+
+            if ($methodArguments)
             {
-                throw new ExceptionHandler('Route is not defined.');
+                $this->resolve($params['controller'], $params['action'], $methodArguments);
             }
-
-            $controller = 'App\Controllers' . '\\' . $this->routes[$method][$uri]['controller'];
-            $controller_action = $this->routes[$method][$uri]['action'];
-            $controller = new $controller;
-            $controller->$controller_action();
-
-        } catch(ExceptionHandler $e)
-        {
-            $e->handle();
         }
     }
 
-    private function validate_route($route)
+    private function validateRoute($route)
     {
         try
         {
             $route = trim($route, '/');
 
-            $allowed_url_format = "/^([A-z0-9]{1,}|\{[A-z]{1,}\})(\/[A-z0-9]{1,}|\/\{[A-z]{1,}\})*([A-z0-9]{1,}|\/\{[A-z]{1,}\})*$/";
+            $allowedUrlFormat = "/^([A-z0-9]{1,}|\{[A-z]{1,}\})(\/[A-z0-9]{1,}|\/\{[A-z]{1,}\})*([A-z0-9]{1,}|\/\{[A-z]{1,}\})*$/";
 
-            if (!preg_match($allowed_url_format, $route))
+            if (!preg_match($allowedUrlFormat, $route))
             {
                 throw new ExceptionHandler('Invalid route format');
             }
 
-            return true;
+            if (!$this->checkDuplicateSlugs($route))
+            {
+                throw new ExceptionHandler('Duplicate slugs not allowed in a route');
+            }
 
-        }catch(ExceptionHandler $e)
+            return true;
+        }
+        catch(ExceptionHandler $e)
         {
             $e->handle();
         }
     }
 
-    private function extract_action_arguments($route)
+    private function checkDuplicateSlugs($route)
     {
-        try {
-            $preg = '/\{[A-z]{1,}\}/';
-            preg_match_all($preg, $route, $matched);
+        $preg = '/\{[A-z]{1,}\}/';
+        preg_match_all($preg, $route, $matched);
 
-            $check_duplicate_values = array_count_values($matched[0]);
+        $check_duplicate_values = array_count_values($matched[0]);
 
-            $arguments = [];
-
-            foreach ($check_duplicate_values as $duplicate_value)
+        foreach ($check_duplicate_values as $duplicate_value)
+        {
+            if ($duplicate_value > 1)
             {
-                if ($duplicate_value > 1)
+               return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function matchRoute($route, $uri)
+    {
+        $initialRoute = explode('/', trim($route,'/'));
+
+        $route = $this->replaceSlugsWithRegex($route);
+
+        $uri = explode('/', trim($uri, '/'));
+
+        if (count($uri) !== count($route))
+        {
+            return false;
+        }
+
+        foreach ($uri as $key => $item)
+        {
+            if ($route[$key] === '/(.*)+/')
+            {
+                if (!preg_match($route[$key], $item))
                 {
-                    throw new ExceptionHandler('Duplicate slugs not allowed in a route.');
+                    return false;
                 }
             }
 
-            foreach ($matched[0] as $parameter)
+            if ($route[$key] !== '/(.*)+/')
             {
-                $arguments[] = $this->strip_curly_braces($parameter);
+                if ($item !== $route[$key])
+                {
+                    return false;
+                }
             }
-
-            return $arguments;
-
-        }catch (\Exception $exception)
-        {
-            $exception->handle();
         }
+
+        return $this->extractDynamicParameters($initialRoute, $uri);
     }
 
-    private function strip_curly_braces($string)
+    private function replaceSlugsWithRegex($route)
     {
-        $opening = strpos($string, '{');
-        $closing = strpos($string, '}');
-        return substr($string, $opening+1, $closing-$opening-1);
+        $createRegex = "/\{[A-z]{1,}\}/";
+        $array = explode('/', trim($route,'/'));
+        $route = [];
+        foreach ($array as $el)
+        {
+            $route[] = preg_replace($createRegex, "/(.*)+/", $el);
+        }
+
+        return $route;
     }
+
+    private function extractDynamicParameters(array $initialRoute, array $uri)
+    {
+        $methodParameters = [];
+        foreach($initialRoute as $key => $param)
+        {
+            if (strpos($param, '}'))
+            {
+                $methodParameters[] = $uri[$key];
+            }
+        }
+
+        return $methodParameters;
+    }
+
+    private function resolve($controller, $action, array $methodArguments)
+    {
+        try {
+            $controller = 'App\\Controllers\\' . $controller;
+            if (!class_exists($controller))
+            {
+                throw new ExceptionHandler("Controller $controller not found.");
+            }
+            $controllerInstance = new $controller();
+            $action = $action . 'Action';
+            if (!method_exists($controllerInstance, $action))
+            {
+                throw new ExceptionHandler("Method $action does not exist on $controller.");
+            }
+            $action = $controllerInstance->$action(...$methodArguments);
+        }
+        catch (ExceptionHandler $e)
+        {
+            $e->handle();
+        }
+
+    }
+
 }

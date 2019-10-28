@@ -6,7 +6,5 @@ use App\Core\Router;
 
 $router = new Router();
 
-$router->get('/post/{post}', ['controller' => 'PostController', 'action' => 'index']);
-$router->post('/users', ['controller' => 'UserController', 'action' => 'create']);
-dump($router->routes);die;
-$router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$router->get('posts', ['controller' => 'PostController', 'action' => 'index']);
+$router->get('posts/{post}', ['controller' => 'PostController', 'action' => 'show']);

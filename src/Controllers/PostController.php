@@ -7,8 +7,8 @@ namespace App\Controllers;
 class PostController extends Controller
 {
 
-    public function indexAction()
+    public function showAction()
     {
-        dump('here');
+
     }
 }
