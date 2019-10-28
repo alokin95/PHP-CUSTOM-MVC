@@ -15,7 +15,7 @@ class Router
         {
             $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
 
-            if ($methodArguments)
+            if (is_array($methodArguments))
             {
                 $this->resolve($params['controller'], $params['action'], $methodArguments);
             }
