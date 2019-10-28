@@ -9,6 +9,6 @@ class PostController extends Controller
 
     public function showAction()
     {
-
+        die('welcome');
     }
 }

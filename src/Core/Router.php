@@ -4,7 +4,7 @@ namespace App\Core;
 
 class Router
 {
-    public function get($route = '', array $params = [])
+    public function get($route = '', $controller = 'HomeController', $action = 'index')
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET')
         {
@@ -17,12 +17,12 @@ class Router
 
             if (is_array($methodArguments))
             {
-                $this->resolve($params['controller'], $params['action'], $methodArguments);
+                $this->resolve($controller, $action, $methodArguments);
             }
         }
     }
 
-    public function post($route = '', array $params = [])
+    public function post($route = '', $controller = 'HomeController', $action = 'index')
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
         {
@@ -35,7 +35,7 @@ class Router
 
             if ($methodArguments)
             {
-                $this->resolve($params['controller'], $params['action'], $methodArguments);
+                $this->resolve($controller, $action, $methodArguments);
             }
         }
     }
