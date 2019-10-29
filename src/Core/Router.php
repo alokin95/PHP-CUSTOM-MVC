@@ -4,39 +4,61 @@ namespace App\Core;
 
 class Router
 {
+    public $routes = [
+        'GET' => [],
+        'POST'=> []
+    ];
+
     public function get($route = '', $controller = 'HomeController', $action = 'index')
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET')
-        {
-            return;
-        }
-
         if ($this->validateRoute($route))
         {
-            $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
-
-            if (is_array($methodArguments))
-            {
-                $this->resolve($controller, $action, $methodArguments);
-            }
+            $this->routes['GET'][$route] = [
+                'controller' => $controller,
+                'action'    => $action
+            ];
         }
     }
 
     public function post($route = '', $controller = 'HomeController', $action = 'index')
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-        {
-            return;
-        }
-
         if ($this->validateRoute($route))
         {
-            $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
+            $this->routes['POST'][$route] = [
+                'controller' => $controller,
+                'action'    => $action
+            ];
+        }
+    }
 
-            if ($methodArguments)
+    public function resolve()
+    {
+
+        try {
+            foreach ($this->routes[$_SERVER['REQUEST_METHOD']] as $route => $arguments)
             {
-                $this->resolve($controller, $action, $methodArguments);
+                $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
+
+                if (is_array($methodArguments)) {
+                    $controller = 'App\\Controllers\\' . $arguments['controller'];
+                    if (!class_exists($controller))
+                    {
+                        throw new ExceptionHandler("Controller $controller not found.");
+                    }
+                    $controllerInstance = new $controller();
+                    $action = $arguments['action'] . 'Action';
+                    if (!method_exists($controllerInstance, $action))
+                    {
+                        throw new ExceptionHandler("Method $action does not exist on $controller.");
+                    }
+                    $controllerInstance->$action(...$methodArguments);
+                    }
             }
+            throw new ExceptionHandler("The route " . $_SERVER['REQUEST_URI'] . " was not defined");
+        }
+        catch (ExceptionHandler $e)
+        {
+            $e->handle();
         }
     }
 
@@ -144,29 +166,6 @@ class Router
         }
 
         return $methodParameters;
-    }
-
-    private function resolve($controller, $action, array $methodArguments)
-    {
-        try {
-            $controller = 'App\\Controllers\\' . $controller;
-            if (!class_exists($controller))
-            {
-                throw new ExceptionHandler("Controller $controller not found.");
-            }
-            $controllerInstance = new $controller();
-            $action = $action . 'Action';
-            if (!method_exists($controllerInstance, $action))
-            {
-                throw new ExceptionHandler("Method $action does not exist on $controller.");
-            }
-            $action = $controllerInstance->$action(...$methodArguments);
-        }
-        catch (ExceptionHandler $e)
-        {
-            $e->handle();
-        }
-
     }
 
 }
