@@ -7,4 +7,4 @@ $router = new Router();
 
 require __DIR__. '/routes.php';
 
-$router->resolve();
+$router->handle();

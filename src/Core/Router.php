@@ -31,7 +31,7 @@ class Router
         }
     }
 
-    public function resolve()
+    public function handle()
     {
 
         try {
