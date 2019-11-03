@@ -26,6 +26,15 @@ if (!function_exists('response'))
     }
 }
 
+if (!function_exists('redirect'))
+{
+    function redirect($uri)
+    {
+        $server = $_SERVER['HTTP_HOST'];
+        header("Location: http://$server/".$uri);
+    }
+}
+
 if (!function_exists('app'))
 {
     /**
