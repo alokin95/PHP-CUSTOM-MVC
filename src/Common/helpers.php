@@ -1,21 +1,36 @@
 <?php
 
-function session($key = null, $value = null)
+if (!function_exists('session'))
+{
+    function session($key = null, $value = null)
+    {
+        if (is_null($key))
+        {
+            return app('session');
+        }
+
+        if (is_null($value))
+        {
+            return app('session')->get($key);
+        }
+
+        return app('session')->put($key, $value);
+    }
+}
+
+if (!function_exists('app'))
 {
     /**
-     * @var \App\Core\Container $container
+     * @param $key
+     * @return mixed
      */
-    global $container;
-
-    if (is_null($key))
+    function app($key)
     {
-        return $container->get('session');
-    }
+        /**
+         * @var \App\Core\Container $container
+         */
+        global $container;
 
-    if (is_null($value))
-    {
-        return $container->get('session')->get($key);
+        return $container->get($key);
     }
-
-    return $container->get('session')->put($key, $value);
 }

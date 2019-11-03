@@ -9,8 +9,8 @@ class Container
 {
 
     private static $instance;
-    private $lazyLoad;
-    public $services;
+    private $lazyLoad = [];
+    public $services = [];
 
     private function registerServices()
     {

@@ -10,7 +10,7 @@ class Session
 {
     public function put($key, $value)
     {
-        $_SESSION[$key] = $value;
+        return $_SESSION[$key] = $value;
     }
 
     public function get($key)
