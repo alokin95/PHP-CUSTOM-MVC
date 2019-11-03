@@ -18,6 +18,14 @@ if (!function_exists('session'))
     }
 }
 
+if (!function_exists('response'))
+{
+    function response()
+    {
+        return app('response');
+    }
+}
+
 if (!function_exists('app'))
 {
     /**
