@@ -23,4 +23,9 @@ class Controller
         $this->container = Container::getInstance();
         $this->response = $this->container->get('response');
     }
+
+    protected function get($key)
+    {
+        return $this->container->get($key);
+    }
 }

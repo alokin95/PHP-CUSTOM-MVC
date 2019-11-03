@@ -20,7 +20,10 @@ class Container
             },
             'session' => function (self $container) {
             return new Session();
-    }
+            },
+            'repository' => function (self $container) {
+                return new Repository();
+            }
         ];
     }
 
