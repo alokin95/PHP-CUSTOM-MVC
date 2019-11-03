@@ -2,6 +2,7 @@
 
 namespace App\Core;
 
+use App\Common\Session;
 use App\Controllers\Controller;
 
 class Container
@@ -16,7 +17,10 @@ class Container
         $this->services = [
            'response' => function( self $container ) {
                 return new Response();
-            }
+            },
+            'session' => function (self $container) {
+            return new Session();
+    }
         ];
     }
 
