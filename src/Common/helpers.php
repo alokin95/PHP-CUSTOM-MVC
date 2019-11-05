@@ -51,3 +51,25 @@ if (!function_exists('app'))
         return $container->get($key);
     }
 }
+
+if (!function_exists('ENV'))
+{
+    function ENV($key)
+    {
+        $env = file(__DIR__.'/../../.env');
+
+        $searchedKey = "";
+
+        foreach ($env as $row)
+        {
+            $row = explode('=', trim($row));
+
+            if ($row[0] == $key)
+            {
+                $searchedKey = $row[1];
+            }
+        }
+
+        return $searchedKey;
+    }
+}

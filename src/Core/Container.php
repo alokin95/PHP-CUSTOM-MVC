@@ -9,12 +9,16 @@ class Container
 {
 
     private static $instance;
-    private $lazyLoad = [];
+    private $definitions = [];
     public $services = [];
 
     private function registerServices()
     {
         $this->services = [
+            'connection' => function ( self $container) {
+                $connection = new Connection(ENV('DB_NAME'), ENV('DB_USER'), ENV('DB_PASSWORD'), ENV('DB_HOST'));
+                return $connection->connect();
+            },
            'response' => function( self $container ) {
                 return new Response();
             },
@@ -35,13 +39,13 @@ class Container
                 throw new ExceptionHandler("Service $service not found.");
             }
 
-            if (!array_key_exists($service, $this->lazyLoad))
+            if (!array_key_exists($service, $this->definitions))
             {
                 $closure = $this->services[$service];
-                $this->lazyLoad[$service] = $closure($this);
+                $this->definitions[$service] = $closure($this);
             }
 
-            return $this->lazyLoad[$service];
+            return $this->definitions[$service];
         }
         catch (ExceptionHandler $exception)
         {
