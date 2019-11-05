@@ -26,7 +26,7 @@ class Container
             return new Session();
             },
             'repository' => function (self $container) {
-                return new Repository();
+                return new Repository($container);
             }
         ];
     }

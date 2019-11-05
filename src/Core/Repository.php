@@ -7,6 +7,15 @@ namespace App\Core;
 class Repository
 {
     private $table;
+    /**
+     * @var \PDO
+     */
+    private $connection;
+
+    public function __construct(Container $container)
+    {
+        $this->connection = $container->get('connection');
+    }
 
     public function table($table)
     {
@@ -24,7 +33,7 @@ class Repository
 
     }
 
-    public function findBy(array $array)
+    public function findBy(array $array = [])
     {
 
     }
