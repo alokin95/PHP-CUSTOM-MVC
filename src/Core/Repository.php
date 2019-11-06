@@ -25,17 +25,45 @@ class Repository
 
     public function all()
     {
+        try {
+            $stmt = $this->connection->prepare("SELECT * FROM $this->table");
+            $stmt->execute();
+
+            return $stmt->fetchAll();
+        }
+        catch (ExceptionHandler $exception)
+        {
+            $exception->handle();
+        }
 
     }
 
-    public function findById($id)
+    public function findById(int $id, string $column = 'id')
     {
+        $sql = "SELECT * FROM $this->table WHERE $column = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['id' => $id]);
 
+        return $stmt->fetch();
     }
 
     public function findBy(array $array = [])
     {
 
+    }
+
+    public function raw(string $sql)
+    {
+        try {
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute();
+
+            return $stmt->fetchAll();
+        }
+        catch (ExceptionHandler $exception)
+        {
+            $exception->handle();
+        }
     }
 
 }
