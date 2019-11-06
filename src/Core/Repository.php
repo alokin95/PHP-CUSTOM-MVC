@@ -47,9 +47,33 @@ class Repository
         return $stmt->fetch();
     }
 
-    public function findBy(array $array = [])
+    public function findBy(array $clauses = [])
     {
+        try {
+            $sql = "SELECT * FROM $this->table";
+            $iterator = 0;
+            $bindParams = [];
+            foreach ($clauses as $key => $value)
+            {
+                if ($iterator === 0)
+                {
+                    $sql.=" WHERE $key = :$key";
+                    $iterator++;
+                    $bindParams[$key] = $value;
+                    continue;
+                }
+                $sql.=" AND $key = :$key";
+                $bindParams[$key] = $value;
+            }
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute($bindParams);
 
+            return $stmt->fetch();
+        }
+        catch (ExceptionHandler $exception)
+        {
+            $exception->handle();
+        }
     }
 
     public function raw(string $sql)
