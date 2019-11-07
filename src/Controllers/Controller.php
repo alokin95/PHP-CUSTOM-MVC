@@ -23,6 +23,8 @@ class Controller
      */
     protected $repository;
 
+    protected $middleware;
+
     public function __construct()
     {
         $this->container = Container::getInstance();
@@ -33,5 +35,18 @@ class Controller
     protected function get($key)
     {
         return $this->container->get($key);
+    }
+
+    protected function middleware($middleware)
+    {
+        if (is_array($middleware))
+        {
+            foreach ($middleware as $m)
+            {
+                $this->middleware[] = $m;
+            }
+            return;
+        }
+        $this->middleware = $middleware;
     }
 }
