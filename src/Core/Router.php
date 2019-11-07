@@ -69,7 +69,7 @@ class Router
                     return true;
                     }
             }
-            throw new ExceptionHandler("The route " . $_SERVER['REQUEST_URI'] . " was not defined");
+            throw new ExceptionHandler("The route " . $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'] . " was not defined");
         }
         catch (ExceptionHandler $e)
         {
