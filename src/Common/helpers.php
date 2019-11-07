@@ -6,7 +6,7 @@ if (!function_exists('session'))
     {
         if (is_null($key))
         {
-            return app('session');
+            return app('session')->getInstance();
         }
 
         if (is_null($value))
@@ -71,5 +71,27 @@ if (!function_exists('ENV'))
         }
 
         return $searchedKey;
+    }
+}
+
+if (!function_exists('request'))
+{
+    function request($key)
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] === 'GET')
+            {
+                return $_GET[$key];
+            }
+            if ($_SERVER['REQUEST_METHOD'] === 'POST')
+            {
+                return $_POST[$key];
+            }
+            throw new \App\Core\ExceptionHandler("No $key was found in the request payload");
+        }
+        catch(\App\Core\ExceptionHandler $exception)
+        {
+            $exception->handle();
+        }
     }
 }
