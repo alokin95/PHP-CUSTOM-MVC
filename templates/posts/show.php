@@ -1,5 +1,5 @@
 <?php
-echo $post->title . "</br>";
+echo "<h1>".$post->title . "</h1></br>";
 echo $post->body . "</br>";
 ?>
 
