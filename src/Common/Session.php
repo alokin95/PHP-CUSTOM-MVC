@@ -8,6 +8,11 @@ use App\Core\ExceptionHandler;
 
 class Session
 {
+    public function getInstance()
+    {
+        return $_SESSION;
+    }
+
     public function put($key, $value)
     {
         return $_SESSION[$key] = $value;
@@ -19,7 +24,7 @@ class Session
             if (array_key_exists($key, (array)$_SESSION)) {
                 return $_SESSION[$key];
             }
-            throw new ExceptionHandler("Session $key does not exist");
+            return null;
         }
         catch (ExceptionHandler $exception)
         {
