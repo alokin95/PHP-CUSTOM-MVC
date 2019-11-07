@@ -11,23 +11,37 @@ class Router
 
     public function get($route = '', $controller = 'HomeController', $action = 'index')
     {
-        if ($this->validateRoute($route))
+        try
         {
-            $this->routes['GET'][$route] = [
-                'controller' => $controller,
-                'action'    => $action
-            ];
+            if ($this->validateRoute($route))
+            {
+                $this->routes['GET'][$route] = [
+                    'controller' => $controller,
+                    'action'    => $action
+                ];
+            }
+        }
+        catch (ExceptionHandler $exception)
+        {
+            $exception->handle();
         }
     }
 
     public function post($route = '', $controller = 'HomeController', $action = 'index')
     {
-        if ($this->validateRoute($route))
+        try
         {
-            $this->routes['POST'][$route] = [
-                'controller' => $controller,
-                'action'    => $action
-            ];
+            if ($this->validateRoute($route))
+            {
+                $this->routes['POST'][$route] = [
+                    'controller' => $controller,
+                    'action'    => $action
+                ];
+            }
+        }
+        catch (ExceptionHandler $exception)
+        {
+            $exception->handle();
         }
     }
 
@@ -52,6 +66,7 @@ class Router
                         throw new ExceptionHandler("Method $action does not exist on $controller.");
                     }
                     $controllerInstance->$action(...$methodArguments);
+                    return true;
                     }
             }
             throw new ExceptionHandler("The route " . $_SERVER['REQUEST_URI'] . " was not defined");
@@ -67,6 +82,11 @@ class Router
         try
         {
             $route = trim($route, '/');
+
+            if ($route === '')
+            {
+                return true;
+            }
 
             $allowedUrlFormat = "/^([A-z0-9]{1,}|\{[A-z]{1,}\})(\/[A-z0-9]{1,}|\/\{[A-z]{1,}\})*([A-z0-9]{1,}|\/\{[A-z]{1,}\})*$/";
 

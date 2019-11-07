@@ -10,4 +10,4 @@ $container = Container::getInstance();
 
 $router = new Router();
 
-require __DIR__. '/routes.php';
+require __DIR__. '/public/routes.php';

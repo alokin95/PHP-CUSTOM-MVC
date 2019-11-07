@@ -19,6 +19,6 @@ class Response
     public function render($view, $data = [])
     {
         extract($data);
-        return require __DIR__.'/../../templates/'.$view;
+        return require __DIR__.'/../../templates/'.$view.'.php';
     }
 }
