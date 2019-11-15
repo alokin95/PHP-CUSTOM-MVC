@@ -3,8 +3,7 @@
 
 namespace App\Core;
 
-use App\Middleware\MiddlewareInterface;
-use App\Middleware\MiddlewareProvider;
+use App\Providers\MiddlewareProvider;
 
 class AllowRequest
 {

@@ -1,8 +1,9 @@
 <?php
 
 
-namespace App\Middleware;
+namespace App\Providers;
 
+use App\Middleware\CheckIfLoggedInMiddleware;
 
 class MiddlewareProvider
 {
