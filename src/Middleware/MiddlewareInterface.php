@@ -5,7 +5,7 @@ namespace App\Middleware;
 interface MiddlewareInterface
 {
     /**
-     * @return bool
+     * Runs on every request.
      */
     public function handle();
 }

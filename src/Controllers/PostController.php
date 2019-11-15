@@ -7,6 +7,12 @@ namespace App\Controllers;
 class PostController extends Controller
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware(['logged.check', 'kita']);
+    }
+
     public function indexAction()
     {
         $posts = $this->repository->table('posts')->all();

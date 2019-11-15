@@ -31,7 +31,7 @@ if (!function_exists('redirect'))
     function redirect($uri)
     {
         $server = $_SERVER['HTTP_HOST'];
-        header("Location: http://$server/".$uri);
+        header("Location: http://$server/".trim($uri, '/'));
     }
 }
 

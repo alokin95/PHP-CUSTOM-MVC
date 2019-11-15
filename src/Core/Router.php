@@ -54,16 +54,21 @@ class Router
                 $methodArguments = $this->matchRoute($route, $_SERVER['REQUEST_URI']);
 
                 if (is_array($methodArguments)) {
-                    $controller = 'App\\Controllers\\' . $arguments['controller'];
-                    if (!class_exists($controller))
+                    $controllerClass = 'App\\Controllers\\' . $arguments['controller'];
+                    if (!class_exists($controllerClass))
                     {
-                        throw new ExceptionHandler("Controller $controller not found.");
+                        throw new ExceptionHandler("Controller $controllerClass not found.");
                     }
-                    $controllerInstance = new $controller();
+                    $controllerInstance = new $controllerClass();
+
+
+                    $middleware = new AllowRequest();
+                    $middleware->allowRequest($controllerInstance);
+
                     $action = $arguments['action'] . 'Action';
                     if (!method_exists($controllerInstance, $action))
                     {
-                        throw new ExceptionHandler("Method $action does not exist on $controller.");
+                        throw new ExceptionHandler("Method $action does not exist on $controllerClass.");
                     }
                     $controllerInstance->$action(...$methodArguments);
                     return true;

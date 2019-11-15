@@ -1,17 +1,17 @@
 <?php
 
-
 namespace App\Middleware;
-
 
 class CheckIfLoggedInMiddleware implements MiddlewareInterface
 {
-
     /**
-     * @return bool
+     * Runs on every request.
      */
     public function handle()
     {
-        return true;
+        if (!session('user'))
+        {
+            redirect('/');
+        }
     }
 }
