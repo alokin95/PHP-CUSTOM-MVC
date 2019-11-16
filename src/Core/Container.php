@@ -15,17 +15,29 @@ class Container
     private function registerServices()
     {
         $this->services = [
-            'connection' => function ( self $container) {
+            'kernel'            => function ( self $container ) {
+                return new Kernel($container);
+            },
+            'router'   => function ( self $container) {
+                return new Router($container);
+            },
+            'route.validator'   => function ( self $container) {
+                return new RouteValidator();
+            },
+            'route.formatter'   => function ( self $container) {
+                return new RouteFormatter();
+            },
+            'connection'        => function ( self $container) {
                 $connection = new Connection(ENV('DB_NAME'), ENV('DB_USER'), ENV('DB_PASSWORD'), ENV('DB_HOST'));
                 return $connection->connect();
             },
-           'response' => function( self $container ) {
+           'response'           => function( self $container ) {
                 return new Response();
             },
-            'session' => function (self $container) {
+            'session'           => function (self $container) {
             return new Session();
             },
-            'repository' => function (self $container) {
+            'repository'        => function (self $container) {
                 return new Repository($container);
             }
         ];

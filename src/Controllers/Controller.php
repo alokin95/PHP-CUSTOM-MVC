@@ -31,9 +31,4 @@ class Controller
         $this->response = $this->container->get('response');
         $this->repository = $this->container->get('repository');
     }
-
-    protected function get($key)
-    {
-        return $this->container->get($key);
-    }
 }

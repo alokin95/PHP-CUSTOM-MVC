@@ -8,6 +8,6 @@ use App\Core\Router;
 
 $container = Container::getInstance();
 
-$router = new Router();
+$router = new Router($container);
 
 require __DIR__. '/public/routes.php';
