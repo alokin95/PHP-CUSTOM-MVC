@@ -75,25 +75,9 @@ class Router
                 $methodArguments = $this->routeFormatter->matchRoute($route, $_SERVER['REQUEST_URI']);
 
                 if (is_array($methodArguments)) {
-                    $controllerClass = 'App\\Controllers\\' . $arguments['controller'];
-                    if (!class_exists($controllerClass))
-                    {
-                        throw new ExceptionHandler("Controller $controllerClass not found.");
-                    }
-                    $controllerInstance = new $controllerClass();
-
-
-                    $middleware = new AllowRequest();
-                    $middleware->allowRequest($controllerInstance);
-
-                    $action = $arguments['action'] . 'Action';
-                    if (!method_exists($controllerInstance, $action))
-                    {
-                        throw new ExceptionHandler("Method $action does not exist on $controllerClass.");
-                    }
-                    $controllerInstance->$action(...$methodArguments);
+                    $this->callAction($route, $arguments, $methodArguments);
                     return true;
-                    }
+                }
             }
             throw new ExceptionHandler("The route " . $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'] . " was not defined");
         }
@@ -101,5 +85,26 @@ class Router
         {
             $e->handle();
         }
+    }
+
+    private function callAction($route, $arguments, $methodArguments)
+    {
+        $controllerClass = 'App\\Controllers\\' . $arguments['controller'];
+        if (!class_exists($controllerClass))
+        {
+            throw new ExceptionHandler("Controller $controllerClass not found.");
+        }
+        $controllerInstance = new $controllerClass();
+
+
+        $middleware = new AllowRequest();
+        $middleware->allowRequest($controllerInstance);
+
+        $action = $arguments['action'] . 'Action';
+        if (!method_exists($controllerInstance, $action))
+        {
+            throw new ExceptionHandler("Method $action does not exist on $controllerClass.");
+        }
+        $controllerInstance->$action(...$methodArguments);
     }
 }
