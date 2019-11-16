@@ -24,11 +24,4 @@ class Controller
     protected $repository;
 
     protected $middleware;
-
-    public function __construct()
-    {
-        $this->container = Container::getInstance();
-        $this->response = $this->container->get('response');
-        $this->repository = $this->container->get('repository');
-    }
 }

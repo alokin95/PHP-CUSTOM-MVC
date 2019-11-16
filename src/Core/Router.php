@@ -18,6 +18,11 @@ class Router
      */
     private $routeFormatter;
 
+    /**
+     * @var Reflection $reflection
+     */
+    private $reflection;
+
     public $routes = [
         'GET' => [],
         'POST'=> []
@@ -28,6 +33,7 @@ class Router
         $this->container = $container;
         $this->routeValidator = $this->container->get('route.validator');
         $this->routeFormatter = $this->container->get('route.formatter');
+        $this->reflection = $this->container->get('reflection');
     }
 
     public function get($route = '', $controller = 'HomeController', $action = 'index')
@@ -96,9 +102,7 @@ class Router
         }
         $controllerInstance = new $controllerClass();
 
-
-        $middleware = new AllowRequest();
-        $middleware->allowRequest($controllerInstance);
+        $this->reflection->addProperties($controllerInstance);
 
         $action = $arguments['action'] . 'Action';
         if (!method_exists($controllerInstance, $action))
