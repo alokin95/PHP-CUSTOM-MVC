@@ -9,8 +9,7 @@ class PostController extends Controller
 
     public function __construct()
     {
-        parent::__construct();
-        $this->middleware(['logged.check', 'kita']);
+        $this->middleware(['logged.check']);
     }
 
     public function indexAction()
